@@ -1077,3 +1077,24 @@ header {
     max-height: calc(100vh - 160px);
   }
 }
+/* LIGHT MODE */
+body.theme-light {
+--bg:        #f3f4f6;
+--surface:   #ffffff;
+--surface-2: #eceef2;
+--text:      #1a1a1a;
+--muted:     #5c636e;
+--border:    #d4d8de;
+}
+
+body.theme-light .header-text h1,
+body.theme-light .sectionAcc__title,
+body.theme-light .layerCard__title > span:first-child,
+body.theme-light .photo-modal__title {
+color: #8a7a00;
+}
+
+body.theme-light .readonly {
+background: #f6f6f2;
+color: #333333;
+}
