@@ -73,7 +73,7 @@ quickMode: true,
 theme: 'dark'
 },
 layers: []
-
+},
 const photoDraft = {
   endDepth: '',
   selectedBox: '',
