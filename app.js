@@ -69,10 +69,10 @@ const state = {
     note: ''
   },
   ui: {
-    quickMode: true
-  },
-  layers: []
-};
+quickMode: true,
+theme: 'dark'
+},
+layers: []
 
 const photoDraft = {
   endDepth: '',
@@ -359,7 +359,18 @@ function syncMetaAccordionMeta() {
   if (state.meta.project) parts.push(state.meta.project);
   if (state.meta.borehole) parts.push(state.meta.borehole);
   if (state.meta.date) parts.push(state.meta.date);
-  el.textContent = parts.join(' · ') || 'Projekt, Bohrung, Datum';
+ el.textContent = parts.join(' · ') || 'Projekt, Bohrung, Datum';
+}
+
+function applyTheme(theme) {
+const next = theme === 'light' ? 'light' : 'dark';
+state.ui.theme = next;
+document.body.classList.toggle('theme-light', next === 'light');
+document.body.classList.toggle('theme-dark', next === 'dark');
+const meta = document.querySelector('meta[name="theme-color"]');
+if (meta) meta.setAttribute('content', next === 'light' ? '#f3f4f6' : '#111111');
+const sel = $('settings-theme');
+if (sel && sel.value !== next) sel.value = next;
 }
 
 function syncQuickModeUi() {
@@ -2056,6 +2067,7 @@ window.addEventListener('DOMContentLoaded', () => {
   syncMetaToUi();
   syncMetaAccordionMeta();
   syncQuickModeUi();
+  applyTheme(state.ui.theme);
   renderLayers();
   renderHistoryList();
   renderPhotoHistoryLists();
@@ -2073,6 +2085,10 @@ window.addEventListener('DOMContentLoaded', () => {
     renderLayers(getOpenIds());
     saveDraftDebounced();
   });
+$('settings-theme')?.addEventListener('change', () => {
+applyTheme($('settings-theme')?.value || 'dark');
+saveDraftDebounced();
+});
 
   $('btnAddLayer')?.addEventListener('click', () => {
     const lastTo = state.layers.length ? state.layers[state.layers.length - 1].to : 0;
