@@ -33,9 +33,11 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab is-active" type="button" data-tab="doku">Dokumentation</button>
+    <button class="tab is-active" type="button" data-tab="doku">Protokoll</button>
     <button class="tab"           type="button" data-tab="verlauf">Verlauf</button>
     <button class="tab"           type="button" data-tab="photo">Fotodoku</button>
+    <button class="tab"           type="button" data-tab="checkliste">Checkliste</button>
+    <button class="tab"           type="button" data-tab="einstellungen">Einstellungen</button>
   </nav>
 
   <!-- TAB: Dokumentation -->
@@ -174,7 +176,33 @@
 
     </section>
   </div>
+  
+<!-- TAB: Checkliste -->
+<div class="pane" id="tab-checkliste" hidden>
+<section class="section">
+<div class="section-title">Checkliste</div>
+<div class="text"><p>Platzhalter – Checkliste folgt.</p></div>
+</section>
+</div>
 
+<!-- TAB: Einstellungen -->
+<div class="pane" id="tab-einstellungen" hidden>
+<section class="section">
+<div class="section-title">Darstellung</div>
+<div class="form-grid">
+<label class="field">
+<span class="field__label">Design</span>
+<select class="field__select" id="settings-theme">
+<option value="dark">Dunkel</option>
+<option value="light">Hell</option>
+</select>
+</label>
+</div>
+</section>
+</div>
+
+<!-- Floating Foto Button -->
+<button class="photo-float-btn" id="btnPhotoFloat" type="button">
   <!-- Floating Foto Button -->
   <button class="photo-float-btn" id="btnPhotoFloat" type="button">
     Foto
