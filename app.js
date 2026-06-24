@@ -69,7 +69,7 @@ const state = {
     note: ''
   },
   ui: {
-quickMode: true,
+
 theme: 'dark'
 },
 layers: []
@@ -373,23 +373,6 @@ const sel = $('settings-theme');
 if (sel && sel.value !== next) sel.value = next;
 }
 
-function syncQuickModeUi() {
-  const btn = $('btnQuickMode');
-  const hint = $('quickModeHint');
-  if (!btn) return;
-
-  const on = !!state.ui.quickMode;
-  btn.textContent = on ? 'Schnellmodus: EIN' : 'Schnellmodus: AUS';
-  btn.setAttribute('aria-pressed', String(on));
-  btn.classList.toggle('btn--accent', on);
-  btn.classList.toggle('btn--ghost', !on);
-
-  if (hint) {
-    hint.textContent = on
-      ? 'Schnellmodus aktiv: sichtbar sind nur die wichtigsten Felder. Für Proben-Nr., Kernlauf, Kalk, Wasser etc. den Schnellmodus ausschalten.'
-      : 'Schnellmodus aus: alle Detailfelder einer Schicht sind sichtbar.';
-  }
-}
 
 /* =========================
    Zusammenfassungen
