@@ -337,7 +337,6 @@ function applyState(snapshot) {
     : [defaultLayer(0)];
   syncMetaToUi();
   syncMetaAccordionMeta();
-  syncQuickModeUi();
   renderLayers();
   renderHistoryList();
   syncPhotoPanel(true);
@@ -2115,7 +2114,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initTabs();
   syncMetaToUi();
   syncMetaAccordionMeta();
-  syncQuickModeUi();
   applyTheme(state.ui.theme);
   renderLayers();
   renderHistoryList();
@@ -2128,12 +2126,6 @@ window.addEventListener('DOMContentLoaded', () => {
   hookHistoryEvents();
   hookPhotoEvents();
 
-  $('btnQuickMode')?.addEventListener('click', () => {
-    state.ui.quickMode = !state.ui.quickMode;
-    syncQuickModeUi();
-    renderLayers(getOpenIds());
-    saveDraftDebounced();
-  });
 $('settings-theme')?.addEventListener('change', () => {
 applyTheme($('settings-theme')?.value || 'dark');
 saveDraftDebounced();
