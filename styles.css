@@ -1083,7 +1083,7 @@ body.theme-light {
 --surface:   #ffffff;
 --surface-2: #eceef2;
 --text:      #000000;   /*Haupt-Schriftfarbe*/
---muted:     #5c636e;   /*Labels/Sekundärtext*/
+--muted:     #000000;   /*Labels/Sekundärtext*/
 --border:    #d4d8de;
 }
 
