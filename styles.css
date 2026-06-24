@@ -285,10 +285,6 @@ header {
   padding-right: 32px;
 }
 
-/* QUICK HINT */
-.quickModeHint {
-  margin-bottom: 16px;
-}
 
 /* LAYER CARD */
 .layerCard {
@@ -347,18 +343,6 @@ header {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 65vw;
-}
-
-.quickPill {
-  display: inline-block;
-  background: var(--primary);
-  color: #000;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 20px;
-  margin-top: 2px;
-  width: max-content;
 }
 
 .layerBody {
@@ -505,16 +489,7 @@ header {
   margin: 16px 0;
 }
 
-.layerQuickNote {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--primary);
-  padding: 10px 14px;
-  border-radius: 0 4px 4px 0;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
+
 
 /* ACTIONS */
 .layerActions {
@@ -1097,4 +1072,18 @@ color: #000000;
 body.theme-light .readonly {
 background: #f6f6f2;
 color: #333333;
+}
+
+.secLevelRow {
+display: flex;
+align-items: center;
+gap: 10px;
+flex-wrap: wrap;
+margin-bottom: 8px;
+}
+.secLevelRow__name {
+min-width: 84px;
+font-size: 0.85rem;
+font-weight: 600;
+color: var(--text);
 }
