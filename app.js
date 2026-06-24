@@ -26,17 +26,14 @@ const MAIN_OPTIONS = [
   { value: 'ANSCHÜTTUNG', family: 'fill' }
 ];
 
-const SECONDARY_OPTIONS = [
-  'schwach blockig', 'blockig', 'stark blockig',
-  'schwach steinig', 'steinig', 'stark steinig',
-  'schwach kiesig', 'kiesig', 'stark kiesig',
-  'schwach sandig', 'sandig', 'stark sandig',
-  'schwach schluffig', 'schluffig', 'stark schluffig',
-  'schwach tonig', 'tonig', 'stark tonig',
-  'schwach humos', 'humos', 'stark humos',
-  'schwach torfig', 'torfig', 'stark torfig',
-  'schwach organisch', 'organisch', 'stark organisch'
-];
+const SECONDARY_OPTIONS = ['blockig', 'steinig', 'kiesig', 'sandig', 'schluffig', 'tonig', 'humos', 'torfig', 'organisch'];
+const INTENSITY_OPTIONS = ['schwach', 'mittel', 'stark'];
+const INTENSITY_PREFIX = { schwach: 'schwach ', mittel: '', stark: 'stark ' };
+const MAIN_GENDER = {
+'BLÖCKE': 'e', 'STEINE': 'e',
+'KIES': 'er', 'SAND': 'er', 'SCHLUFF': 'er', 'TON': 'er',
+'TORF': 'er', 'HUMUS': 'er', 'ANSCHÜTTUNG': 'e'
+};
 
 const GRAIN_OPTIONS = [
   { value: 'Feinkies', family: 'gravel' },
@@ -185,13 +182,31 @@ function decorateMain(main, grain) {
   return main;
 }
 
+function normalizeSecondary(arr) {
+if (!Array.isArray(arr)) return [];
+return arr.map(s => {
+if (s && typeof s === 'object' && s.type) return { type: s.type, level: s.level || 'mittel' };
+const str = String(s || '').trim();
+let level = 'mittel', type = str;
+if (str.startsWith('schwach ')) { level = 'schwach'; type = str.slice(8); }
+else if (str.startsWith('stark ')) { level = 'stark'; type = str.slice(6); }
+return type ? { type, level } : null;
+}).filter(Boolean);
+}
+
+function secondaryPhrase(layer) {
+const ending = MAIN_GENDER[layer.main1] || 'er';
+return normalizeSecondary(layer.secondary).filter(s => s.type)
+.map(s => `${INTENSITY_PREFIX[s.level] ?? ''}${s.type}${ending}`);
+}
+
 function shortDescription(layer) {
-  const adj = Array.isArray(layer.secondary) ? layer.secondary : [];
-  const main1 = decorateMain(layer.main1, layer.grain);
-  const main2 = decorateMain(layer.main2, layer.grain);
-  const base = main2 ? `${main1}/${main2}` : main1;
-  if (!base) return '';
-  return adj.length ? `${adj.join(', ')} ${base}` : base;
+const main1 = decorateMain(layer.main1, layer.grain);
+const main2 = decorateMain(layer.main2, layer.grain);
+const base = main2 ? `${main1}/${main2}` : main1;
+if (!base) return '';
+const adj = secondaryPhrase(layer);
+return adj.length ? `${adj.join(', ')} ${base}` : base;
 }
 
 function fullDescription(layer) {
@@ -237,10 +252,10 @@ function defaultLayer(index = 0) {
 function hydrateLayer(layer, idx) {
   const base = defaultLayer(idx);
   return {
-    ...base,
-    ...layer,
-    secondary: Array.isArray(layer?.secondary) ? layer.secondary : [],
-    colors: Array.isArray(layer?.colors) ? layer.colors : [],
+   ...base,
+...layer,
+secondary: normalizeSecondary(layer?.secondary),
+colors: Array.isArray(layer?.colors) ? layer.colors : [],
     ui: {
       ...base.ui,
       ...(layer?.ui || {})
@@ -531,18 +546,35 @@ function namingGroupHtml(layer, quick) {
       </div>
     `}
 
-    <div class="choiceBlock">
-      <div class="choiceLabel">Nebenanteile</div>
-      <div class="chips">
-        ${SECONDARY_OPTIONS.map(v => chipHtml({
-          layerId: layer.id,
-          field: 'secondary',
-          value: v,
-          active: (layer.secondary || []).includes(v),
-          soft: true
-        })).join('')}
-      </div>
-    </div>
+<div class="choiceBlock">
+<div class="choiceLabel">Nebenanteil</div>
+<div class="chips">
+${SECONDARY_OPTIONS.map(v => `
+<button class="chip chip--soft ${normalizeSecondary(layer.secondary).some(s => s.type === v) ? 'is-active' : ''}" type="button" data-sec-toggle="${h(v)}" data-id="${h(layer.id)}">${h(v)}</button>
+`).join('')}
+</div>
+</div>
+
+${normalizeSecondary(layer.secondary).length ? `
+<div class="choiceBlock">
+<div class="choiceLabel">Intensität</div>
+${normalizeSecondary(layer.secondary).map(s => `
+<div class="secLevelRow">
+<span class="secLevelRow__name">${h(s.type)}</span>
+<div class="chips">
+${INTENSITY_OPTIONS.map(lv => `
+<button class="chip ${s.level === lv ? 'is-active' : ''}" type="button" data-sec-level="${h(lv)}" data-sec-type="${h(s.type)}" data-id="${h(layer.id)}">${h(lv)}</button>
+`).join('')}
+</div>
+</div>
+`).join('')}
+</div>
+
+<div class="choiceBlock">
+<div class="choiceLabel">Live-Vorschau</div>
+<div class="readonly">${h(shortDescription(layer) || 'Noch keine Benennung')}</div>
+</div>
+` : ''}
 
     <div class="choiceBlock">
       <div class="choiceLabel">Kornklasse optional</div>
@@ -866,7 +898,7 @@ function buildCsv(snapshot = state) {
       escCsv(thickness),
       escCsv(layer.main1 || ''),
       escCsv(layer.main2 || ''),
-      escCsv((layer.secondary || []).join(', ')),
+      escCsv(normalizeSecondary(layer.secondary).map(s => `${INTENSITY_PREFIX[s.level] || ''}${s.type}`.trim()).join(', ')),
       escCsv(layer.grain || ''),
       escCsv(fullDescription(layer)),
       escCsv(layer.state || ''),
@@ -1737,9 +1769,43 @@ function hookLayerEvents() {
     saveDraftDebounced();
   }, true);
 
-  host.addEventListener('click', (e) => {
-    const chip = e.target.closest('[data-chip-field]');
-    if (chip) {
+ host.addEventListener('click', (e) => {
+const secToggle = e.target.closest('[data-sec-toggle]');
+if (secToggle) {
+const layer = getLayer(secToggle.dataset.id);
+if (!layer) return;
+const type = secToggle.dataset.secToggle;
+const list = normalizeSecondary(layer.secondary);
+const idx = list.findIndex(s => s.type === type);
+if (idx >= 0) list.splice(idx, 1);
+else list.push({ type, level: 'mittel' });
+layer.secondary = list;
+const openIds = getOpenIds();
+if (!openIds.includes(layer.id)) openIds.push(layer.id);
+renderLayers(openIds);
+syncPhotoPanel();
+saveDraftDebounced();
+return;
+}
+
+const secLevel = e.target.closest('[data-sec-level]');
+if (secLevel) {
+const layer = getLayer(secLevel.dataset.id);
+if (!layer) return;
+const list = normalizeSecondary(layer.secondary);
+const hit = list.find(s => s.type === secLevel.dataset.secType);
+if (hit) hit.level = secLevel.dataset.secLevel;
+layer.secondary = list;
+const openIds = getOpenIds();
+if (!openIds.includes(layer.id)) openIds.push(layer.id);
+renderLayers(openIds);
+syncPhotoPanel();
+saveDraftDebounced();
+return;
+}
+
+const chip = e.target.closest('[data-chip-field]');
+if (chip) {
       const id = chip.dataset.id;
       const field = chip.dataset.chipField;
       const value = chip.dataset.value;
