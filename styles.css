@@ -51,7 +51,7 @@ header {
   z-index: 220;
   height: var(--header-h);
   background: var(--surface);
-  border-bottom: 2px solid var(--primary);
+  border-bottom: 2px solid #000000;
   display: flex;
   align-items: center;
   gap: 12px;
