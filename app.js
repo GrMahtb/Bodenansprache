@@ -394,6 +394,8 @@ document.body.classList.toggle('theme-light', next === 'light');
 document.body.classList.toggle('theme-dark', next === 'dark');
 const meta = document.querySelector('meta[name="theme-color"]');
 if (meta) meta.setAttribute('content', next === 'light' ? '#f3f4f6' : '#111111');
+const logo = $('appLogo');
+if (logo) logo.src = next === 'light' ? 'logo_hell.svg' : 'logo.svg';
 const sel = $('settings-theme');
 if (sel && sel.value !== next) sel.value = next;
 }
