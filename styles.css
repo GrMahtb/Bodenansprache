@@ -132,8 +132,9 @@ header {
 }
 
 .tab.is-active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+background: #f4c400;
+color: #000000;
+border-color: #f4c400;
 }
 
 /* PANES */
