@@ -35,6 +35,16 @@ const MAIN_GENDER = {
 'TORF': 'er', 'HUMUS': 'er', 'ANSCHÜTTUNG': 'e'
 };
 
+const SIZE_OPTIONS = ['fein', 'mittel', 'grob'];
+const SIZE_PREFIX = { fein: 'fein', mittel: 'mittel', grob: 'grob' };
+const SIZE_MAIN_FAMILIES = ['gravel', 'sand', 'silt'];
+const SIZE_SECONDARY_TYPES = ['kiesig', 'sandig', 'schluffig'];
+const SIZE_MAIN_NAME = {
+gravel: { fein: 'FEINKIES', mittel: 'MITTELKIES', grob: 'GROBKIES' },
+sand:   { fein: 'FEINSAND', mittel: 'MITTELSAND', grob: 'GROBSAND' },
+silt:   { fein: 'FEINSCHLUFF', mittel: 'MITTELSCHLUFF', grob: 'GROBSCHLUFF' }
+};
+
 const GRAIN_OPTIONS = [
   { value: 'Feinkies', family: 'gravel' },
   { value: 'Mittelkies', family: 'gravel' },
@@ -174,35 +184,34 @@ function getFamilyByMain(main) {
   return MAIN_OPTIONS.find(x => x.value === main)?.family || '';
 }
 
-function decorateMain(main, grain) {
-  if (!main) return '';
-  const famMain = getFamilyByMain(main);
-  const famGrain = GRAIN_OPTIONS.find(x => x.value === grain)?.family || '';
-  if (grain && famMain && famMain === famGrain) return grain.toUpperCase();
-  return main;
+function decorateMain(main, size) {
+if (!main) return '';
+const fam = getFamilyByMain(main);
+if (size && SIZE_MAIN_NAME[fam]) return SIZE_MAIN_NAME[fam][size] || main;
+return main;
 }
 
 function normalizeSecondary(arr) {
 if (!Array.isArray(arr)) return [];
 return arr.map(s => {
-if (s && typeof s === 'object' && s.type) return { type: s.type, level: s.level || 'mittel' };
+if (s && typeof s === 'object' && s.type) return { type: s.type, level: s.level || 'mittel', size: s.size || '' };
 const str = String(s || '').trim();
 let level = 'mittel', type = str;
 if (str.startsWith('schwach ')) { level = 'schwach'; type = str.slice(8); }
 else if (str.startsWith('stark ')) { level = 'stark'; type = str.slice(6); }
-return type ? { type, level } : null;
+return type ? { type, level, size: '' } : null;
 }).filter(Boolean);
 }
 
 function secondaryPhrase(layer) {
 const ending = MAIN_GENDER[layer.main1] || 'er';
 return normalizeSecondary(layer.secondary).filter(s => s.type)
-.map(s => `${INTENSITY_PREFIX[s.level] ?? ''}${s.type}${ending}`);
+.map(s => `${INTENSITY_PREFIX[s.level] ?? ''}${s.size ? SIZE_PREFIX[s.size] : ''}${s.type}${ending}`);
 }
 
 function shortDescription(layer) {
-const main1 = decorateMain(layer.main1, layer.grain);
-const main2 = decorateMain(layer.main2, layer.grain);
+const main1 = decorateMain(layer.main1, layer.main1Size);
+const main2 = decorateMain(layer.main2, layer.main2Size);
 const base = main2 ? `${main1}/${main2}` : main1;
 if (!base) return '';
 const adj = secondaryPhrase(layer);
@@ -227,7 +236,9 @@ function defaultLayer(index = 0) {
     from: fmtDepth(index),
     to: fmtDepth(index + 1),
     main1: '',
+    main1Size: '',
     main2: '',
+    main2Size: '',
     secondary: [],
     grain: '',
     state: '',
@@ -517,47 +528,55 @@ function baseGroupHtml(layer, quick) {
 }
 
 function namingGroupHtml(layer, quick) {
-  return `
-    <div class="choiceBlock">
-      <div class="choiceLabel">Hauptanteil</div>
-      <div class="chips">
-        ${MAIN_OPTIONS.map(x => chipHtml({
-          layerId: layer.id,
-          field: 'main1',
-          value: x.value,
-          active: layer.main1 === x.value
-        })).join('')}
-      </div>
-    </div>
+const secList = normalizeSecondary(layer.secondary);
+const mainSizeRow = (mainField, sizeField, label) => {
+if (!SIZE_MAIN_FAMILIES.includes(getFamilyByMain(layer[mainField]))) return '';
+const cur = layer[sizeField] || '';
+return `
+<div class="choiceBlock">
+<div class="choiceLabel">Korngröße ${h(label)}</div>
+<div class="chips">
+${SIZE_OPTIONS.map(sz => `
+<button class="chip ${cur === sz ? 'is-active' : ''}" type="button" data-main-size="${h(sz)}" data-size-field="${h(sizeField)}" data-id="${h(layer.id)}">${h(sz)}</button>
+`).join('')}
+</div>
+</div>
+`;
+};
 
-    ${quick ? '' : `
-      <div class="choiceBlock">
-        <div class="choiceLabel">2. Hauptanteil optional</div>
-        <div class="chips">
-          ${MAIN_OPTIONS.map(x => chipHtml({
-            layerId: layer.id,
-            field: 'main2',
-            value: x.value,
-            active: layer.main2 === x.value,
-            soft: true
-          })).join('')}
-        </div>
-      </div>
-    `}
+return `
+<div class="choiceBlock">
+<div class="choiceLabel">Hauptanteil</div>
+<div class="chips">
+${MAIN_OPTIONS.map(x => chipHtml({ layerId: layer.id, field: 'main1', value: x.value, active: layer.main1 === x.value })).join('')}
+</div>
+</div>
+
+${mainSizeRow('main1', 'main1Size', 'Hauptanteil')}
+
+${quick ? '' : `
+<div class="choiceBlock">
+<div class="choiceLabel">2. Hauptanteil optional</div>
+<div class="chips">
+${MAIN_OPTIONS.map(x => chipHtml({ layerId: layer.id, field: 'main2', value: x.value, active: layer.main2 === x.value, soft: true })).join('')}
+</div>
+</div>
+${mainSizeRow('main2', 'main2Size', '2. Hauptanteil')}
+`}
 
 <div class="choiceBlock">
 <div class="choiceLabel">Nebenanteil</div>
 <div class="chips">
 ${SECONDARY_OPTIONS.map(v => `
-<button class="chip chip--soft ${normalizeSecondary(layer.secondary).some(s => s.type === v) ? 'is-active' : ''}" type="button" data-sec-toggle="${h(v)}" data-id="${h(layer.id)}">${h(v)}</button>
+<button class="chip chip--soft ${secList.some(s => s.type === v) ? 'is-active' : ''}" type="button" data-sec-toggle="${h(v)}" data-id="${h(layer.id)}">${h(v)}</button>
 `).join('')}
 </div>
 </div>
 
-${normalizeSecondary(layer.secondary).length ? `
+${secList.length ? `
 <div class="choiceBlock">
-<div class="choiceLabel">Intensität</div>
-${normalizeSecondary(layer.secondary).map(s => `
+<div class="choiceLabel">Intensität & Korngröße</div>
+${secList.map(s => `
 <div class="secLevelRow">
 <span class="secLevelRow__name">${h(s.type)}</span>
 <div class="chips">
@@ -565,6 +584,13 @@ ${INTENSITY_OPTIONS.map(lv => `
 <button class="chip ${s.level === lv ? 'is-active' : ''}" type="button" data-sec-level="${h(lv)}" data-sec-type="${h(s.type)}" data-id="${h(layer.id)}">${h(lv)}</button>
 `).join('')}
 </div>
+${SIZE_SECONDARY_TYPES.includes(s.type) ? `
+<div class="chips">
+${SIZE_OPTIONS.map(sz => `
+<button class="chip chip--soft ${s.size === sz ? 'is-active' : ''}" type="button" data-sec-size="${h(sz)}" data-sec-type="${h(s.type)}" data-id="${h(layer.id)}">${h(sz)}</button>
+`).join('')}
+</div>
+` : ''}
 </div>
 `).join('')}
 </div>
@@ -575,22 +601,10 @@ ${INTENSITY_OPTIONS.map(lv => `
 </div>
 ` : ''}
 
-    <div class="choiceBlock">
-      <div class="choiceLabel">Kornklasse optional</div>
-      <div class="chips">
-        ${GRAIN_OPTIONS.map(v => chipHtml({
-          layerId: layer.id,
-          field: 'grain',
-          value: v.value,
-          active: layer.grain === v.value
-        })).join('')}
-      </div>
-    </div>
-
-    <div class="smartHint">
-      Bei annähernd gleichen Hauptanteilen kann ein Schrägstrich verwendet werden, z. B. KIES/SAND.
-    </div>
-  `;
+<div class="smartHint">
+Bei annähernd gleichen Hauptanteilen kann ein Schrägstrich verwendet werden, z. B. KIES/SAND.
+</div>
+`;
 }
 
 function stateGroupHtml(layer, quick) {
@@ -895,10 +909,10 @@ function buildCsv(snapshot = state) {
       escCsv(layer.from || ''),
       escCsv(layer.to || ''),
       escCsv(thickness),
-      escCsv(layer.main1 || ''),
-      escCsv(layer.main2 || ''),
-      escCsv(normalizeSecondary(layer.secondary).map(s => `${INTENSITY_PREFIX[s.level] || ''}${s.type}`.trim()).join(', ')),
-      escCsv(layer.grain || ''),
+      escCsv(decorateMain(layer.main1, layer.main1Size)),
+      escCsv(decorateMain(layer.main2, layer.main2Size)),
+      escCsv(normalizeSecondary(layer.secondary).map(s => `${INTENSITY_PREFIX[s.level] || ''}${s.size ? SIZE_PREFIX[s.size] : ''}${s.type}`.trim()).join(', ')),
+      escCsv([layer.main1Size, layer.main2Size].filter(Boolean).join(', ')),
       escCsv(fullDescription(layer)),
       escCsv(layer.state || ''),
       escCsv((layer.colors || []).join(', ')),
@@ -1803,9 +1817,39 @@ saveDraftDebounced();
 return;
 }
 
+const mainSize = e.target.closest('[data-main-size]');
+if (mainSize) {
+const layer = getLayer(mainSize.dataset.id);
+if (!layer) return;
+const f = mainSize.dataset.sizeField, v = mainSize.dataset.mainSize;
+layer[f] = layer[f] === v ? '' : v;
+const openIds = getOpenIds();
+if (!openIds.includes(layer.id)) openIds.push(layer.id);
+renderLayers(openIds);
+syncPhotoPanel();
+saveDraftDebounced();
+return;
+}
+
+const secSize = e.target.closest('[data-sec-size]');
+if (secSize) {
+const layer = getLayer(secSize.dataset.id);
+if (!layer) return;
+const list = normalizeSecondary(layer.secondary);
+const hit = list.find(s => s.type === secSize.dataset.secType);
+if (hit) hit.size = hit.size === secSize.dataset.secSize ? '' : secSize.dataset.secSize;
+layer.secondary = list;
+const openIds = getOpenIds();
+if (!openIds.includes(layer.id)) openIds.push(layer.id);
+renderLayers(openIds);
+syncPhotoPanel();
+saveDraftDebounced();
+return;
+}
+
 const chip = e.target.closest('[data-chip-field]');
 if (chip) {
-      const id = chip.dataset.id;
+const id = chip.dataset.id;
       const field = chip.dataset.chipField;
       const value = chip.dataset.value;
       const layer = getLayer(id);
@@ -1821,12 +1865,16 @@ if (chip) {
         layer[field] = layer[field] === value ? '' : value;
       }
 
-      if (field === 'main1') {
-        const allowed = getStateMode(layer).options;
-        if (layer.state && !allowed.includes(layer.state)) {
-          layer.state = '';
-        }
-      }
+    if (field === 'main1') {
+const allowed = getStateMode(layer).options;
+if (layer.state && !allowed.includes(layer.state)) {
+layer.state = '';
+}
+if (!SIZE_MAIN_FAMILIES.includes(getFamilyByMain(layer.main1))) layer.main1Size = '';
+}
+if (field === 'main2' && !SIZE_MAIN_FAMILIES.includes(getFamilyByMain(layer.main2))) {
+layer.main2Size = '';
+}
 
       const openIds = getOpenIds();
       if (!openIds.includes(id)) openIds.push(id);
