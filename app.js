@@ -35,6 +35,22 @@ const MAIN_GENDER = {
 'TORF': 'er', 'HUMUS': 'er', 'ANSCHÜTTUNG': 'e'
 };
 
+const SOIL_VISUALS = {
+'BLÖCKE':      { color: '#9ca3af', patternId: 'pat-stone',  strokeColor: '#000000' },
+'STEINE':      { color: '#b0b6bd', patternId: 'pat-stone',  strokeColor: '#000000' },
+'KIES':        { color: '#DBAB06', patternId: 'pat-gravel', strokeColor: '#000000' },
+'SAND':        { color: '#C6542F', patternId: 'pat-sand',   strokeColor: '#000000' },
+'SCHLUFF':     { color: '#69633E', patternId: 'pat-silt',   strokeColor: '#ffffff' },
+'TON':         { color: '#675181', patternId: 'pat-clay',   strokeColor: '#ffffff' },
+'TORF':        { color: '#5D4740', patternId: 'pat-peat',   strokeColor: '#ffffff' },
+'HUMUS':       { color: '#5D4740', patternId: 'pat-peat',   strokeColor: '#ffffff' },
+'ANSCHÜTTUNG': { color: '#e5e7eb', patternId: 'pat-fill',   strokeColor: '#ff0000' }
+};
+const SECONDARY_TO_MAIN = {
+blockig: 'BLÖCKE', steinig: 'STEINE', kiesig: 'KIES', sandig: 'SAND',
+schluffig: 'SCHLUFF', tonig: 'TON', humos: 'HUMUS', torfig: 'TORF'
+};
+
 const SIZE_OPTIONS = ['fein', 'mittel', 'grob'];
 const SIZE_PREFIX = { fein: 'fein', mittel: 'mittel', grob: 'grob' };
 const SIZE_MAIN_FAMILIES = ['gravel', 'sand', 'silt'];
@@ -782,14 +798,70 @@ function renderLayers(openIds = null) {
   const opened = Array.isArray(openIds) ? [...openIds] : getOpenIds();
   if (!opened.length && state.layers.length) opened.push(state.layers[state.layers.length - 1].id);
 
-  host.innerHTML = state.layers
-    .map((layer, idx) => layerCardHtml(layer, idx, opened.includes(layer.id)))
-    .join('');
+ host.innerHTML = state.layers
+.map((layer, idx) => layerCardHtml(layer, idx, opened.includes(layer.id)))
+.join('');
+
+renderBohrprofil();
+}
+
+function bohrprofilSecondaryVisual(layer) {
+const sec = normalizeSecondary(layer.secondary)[0];
+if (!sec) return null;
+const key = SECONDARY_TO_MAIN[sec.type];
+return key ? SOIL_VISUALS[key] : null;
+}
+
+function layerProfileCellSvg(layer, heightPx) {
+const main = SOIL_VISUALS[layer.main1] || { color: '#e5e7eb', patternId: '', strokeColor: '#000000' };
+const sec = bohrprofilSecondaryVisual(layer);
+return `
+<svg width="100%" height="${heightPx}" style="display:block">
+<rect width="100%" height="100%" fill="${main.color}" />
+${main.patternId ? `<rect width="100%" height="100%" fill="url(#${main.patternId})" style="color:${main.strokeColor}" />` : ''}
+${sec && sec.patternId ? `
+<line x1="50%" y1="0" x2="50%" y2="100%" stroke="${main.strokeColor}" stroke-width="0.8" stroke-dasharray="2,2" />
+<rect x="50%" width="50%" height="100%" fill="url(#${sec.patternId})" style="color:${sec.strokeColor}" />
+` : ''}
+</svg>
+`;
+}
+
+function renderBohrprofil() {
+const host = $('bohrprofilContent');
+if (!host) return;
+const layers = state.layers.filter(l => l.main1);
+if (!layers.length) {
+host.innerHTML = `<div class="text"><p>Noch keine Schichten mit Hauptanteil erfasst.</p></div>`;
+return;
+}
+const PX_PER_M = 80;
+const MIN_H = 48;
+host.innerHTML = `<div class="bp">${layers.map(layer => {
+const from = Number(layer.from);
+const to = Number(layer.to);
+const thick = (Number.isFinite(from) && Number.isFinite(to) && to > from) ? to - from : 0;
+const hPx = Math.max(MIN_H, Math.round(thick * PX_PER_M));
+const desc = shortDescription(layer) || layer.main1;
+return `
+<div class="bpRow" style="height:${hPx}px">
+<div class="bpDepth">
+<span>${h(fmtDepth(layer.from) || '—')}</span>
+<span>${h(fmtDepth(layer.to) || '—')}</span>
+</div>
+<div class="bpCol">${layerProfileCellSvg(layer, hPx)}</div>
+<div class="bpDesc">
+<span class="bpDesc__name">${h(desc)}</span>
+${layer.state ? `<span class="bpDesc__sub">${h(layer.state)}</span>` : ''}
+</div>
+</div>
+`;
+}).join('')}</div>`;
 }
 
 function refreshLayerComputed(id) {
-  const layer = getLayer(id);
-  if (!layer) return;
+const layer = getLayer(id);
+if (!layer) return;
 
   const card = document.querySelector(`.layerCard[data-id="${id}"]`);
   if (!card) return;
@@ -816,7 +888,9 @@ function refreshLayerComputed(id) {
     if (group === 'grpName') metaEl.textContent = namingSummary(layer);
     if (group === 'grpState') metaEl.textContent = stateSummary(layer);
     if (group === 'grpReport') metaEl.textContent = reportSummary(layer);
-  });
+});
+
+renderBohrprofil();
 }
 
 /* =========================
@@ -1735,10 +1809,14 @@ function initTabs() {
         p.hidden = !on;
       });
 
-      if (btn.dataset.tab === 'verlauf') {
-        renderHistoryList();
-        renderPhotoHistoryLists();
-      }
+     if (btn.dataset.tab === 'verlauf') {
+renderHistoryList();
+renderPhotoHistoryLists();
+}
+
+if (btn.dataset.tab === 'bohrprofil') {
+renderBohrprofil();
+}
 
       if (btn.dataset.tab === 'photo') {
         syncPhotoPanel(true);
