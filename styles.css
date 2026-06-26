@@ -1095,3 +1095,18 @@ font-size: 0.85rem;
 font-weight: 600;
 color: var(--text);
 }
+/* CHECKLISTE */
+.clHint { color: var(--muted); font-size: .85rem; margin: -4px 0 12px; }
+.clCard { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin-bottom: 10px; overflow: hidden; }
+.clCard > summary { padding: 12px 14px; font-weight: 700; cursor: pointer; list-style: none; }
+.clCard > summary::-webkit-details-marker { display: none; }
+.clCard > summary::after { content: '+'; float: right; color: var(--muted); font-weight: 700; }
+.clCard[open] > summary::after { content: '–'; }
+.clBody { padding: 2px 14px 14px; }
+.clRow { display: flex; flex-wrap: wrap; gap: 1px 8px; padding: 7px 0; border-top: 1px solid var(--border); }
+.clRow:first-child { border-top: none; }
+.clKey { flex: 0 0 100%; font-weight: 600; font-size: .9rem; }
+.clVal { flex: 1 1 100%; color: var(--muted); font-size: .88rem; line-height: 1.4; overflow-wrap: anywhere; }
+.clSub { font-weight: 600; font-size: .82rem; color: var(--muted); margin: 12px 0 6px; }
+.clPills { display: flex; flex-wrap: wrap; gap: 6px; }
+.clPill { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: .82rem; }
