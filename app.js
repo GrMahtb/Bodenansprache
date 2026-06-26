@@ -79,8 +79,12 @@ const COLOR_OPTIONS = ['gelb', 'gelblich', 'braun', 'bräunlich', 'grau', 'gräu
 const CALC_OPTIONS = ['', 'nicht kalkhaltig', 'leicht kalkhaltig', 'kalkhaltig', 'sehr kalkhaltig'];
 const ORGANIC_OPTIONS = ['', 'leicht organisch', 'organisch', 'stark organisch'];
 const WATER_OPTIONS = ['', 'trocken', 'erdfeucht', 'feucht', 'nass', 'wasserführend'];
+const DRYSTRENGTH_OPTIONS = ['', 'keine bis niedrig', 'hoch bis sehr hoch'];
+const PLASTICITY_OPTIONS = ['', 'nicht plastisch', 'gering', 'mittel', 'hoch'];
+const GRAINSHAPE_OPTIONS = ['plattig', 'kubisch', 'stängelig'];
+const ROUNDNESS_OPTIONS = ['scharfkantig', 'kantig', 'kantengerundet', 'angerundet', 'gerundet', 'gut gerundet'];
+const ROUGHNESS_OPTIONS = ['rau', 'glatt'];
 const TOOL_OPTIONS = ['', 'RKS', 'Kernbohrung', 'Spülbohrung', 'Bohrstock', 'Bagger', 'Schurf', 'DPH', 'DPSH', 'CPT'];
-
 const state = {
   meta: {
     date: '',
@@ -262,6 +266,12 @@ function defaultLayer(index = 0) {
     organic: '',
     calc: '',
     water: '',
+    dryStrength: '',
+    plasticity: '',
+    grainShape: '',
+    roundness: '',
+    roughness: '',
+    tool: '',
     tool: '',
     sampleNo: '',
     coreRun: '',
@@ -440,7 +450,11 @@ function stateSummary(layer) {
   if (layer.organic) parts.push(layer.organic);
   if (layer.calc && layer.calc !== 'nicht kalkhaltig') parts.push(layer.calc);
   if (layer.water) parts.push(layer.water);
-  return parts.join(' · ') || 'Zustand und Zusatzangaben';
+  if (layer.plasticity) parts.push(`Plastizität: ${layer.plasticity}`);
+  if (layer.dryStrength) parts.push(`Trockenfestigkeit: ${layer.dryStrength}`);
+  const form = [layer.grainShape, layer.roundness, layer.roughness].filter(Boolean).join(', ');
+  if (form) parts.push(`Kornform: ${form}`);
+  return parts.join(' · ');
 }
 
 function reportSummary(layer) {
