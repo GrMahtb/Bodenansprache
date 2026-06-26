@@ -1110,3 +1110,13 @@ color: var(--text);
 .clSub { font-weight: 600; font-size: .82rem; color: var(--muted); margin: 12px 0 6px; }
 .clPills { display: flex; flex-wrap: wrap; gap: 6px; }
 .clPill { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: .82rem; }
+
+/* BOHRPROFIL */
+.bp { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.bpRow { display: flex; align-items: stretch; border-top: 1px solid var(--border); }
+.bpRow:first-child { border-top: none; }
+.bpDepth { flex: 0 0 52px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px 6px; font-size: .72rem; color: var(--muted); text-align: right; border-right: 1px solid var(--border); }
+.bpCol { flex: 0 0 88px; border-right: 1px solid var(--border); }
+.bpDesc { flex: 1 1 auto; padding: 6px 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.bpDesc__name { font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; }
+.bpDesc__sub { font-size: .8rem; color: var(--muted); }
