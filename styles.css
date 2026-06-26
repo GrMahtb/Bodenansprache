@@ -1069,7 +1069,14 @@ body.theme-light .layerCard__title > span:first-child,
 body.theme-light .photo-modal__title {
 color: #000000;
 }
-
+body.theme-light .tabs {
+background: var(--surface-2);
+}
+body.theme-light .tab.is-active {
+background: #ffffff;
+color: #111827;
+border-color: var(--border);
+}
 body.theme-light .readonly {
 background: #f6f6f2;
 color: #333333;
