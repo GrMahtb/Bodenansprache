@@ -1055,12 +1055,12 @@ border-color: #f4c400;
 }
 /* LIGHT MODE */
 body.theme-light {
---bg:        #f3f4f6;
+--bg:        #f8fafc;
 --surface:   #ffffff;
---surface-2: #eceef2;
---text:      #000000;   /*Haupt-Schriftfarbe*/
---muted:     #000000;   /*Labels/Sekundärtext*/
---border:    #d4d8de;
+--surface-2: #f8fafc;
+--text:      #111827;
+--muted:     #6b7280;
+--border:    #d6dde6;
 }
 
 body.theme-light .header-text h1,
