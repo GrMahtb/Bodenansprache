@@ -108,8 +108,8 @@
   <!-- TAB: Bohrprofil -->
   <div class="pane" id="tab-bohrprofil" hidden>
 <section class="section">
-<div class="section-title">Bohrprofil</div>
-<div class="text"><p>Platzhalter – Bohrprofil folgt.</p></div>
+<div class="section-title">Bohrprofil nach Norm</div>
+<div id="bohrprofilContent"></div>
 </section>
 </div>
 
@@ -400,5 +400,36 @@
 
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="app.js"></script>
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<pattern id="pat-stone" width="48" height="48" patternUnits="userSpaceOnUse">
+<circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<circle cx="34" cy="32" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+</pattern>
+<pattern id="pat-gravel" width="40" height="40" patternUnits="userSpaceOnUse">
+<circle cx="10" cy="10" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="30" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="22" cy="28" r="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+</pattern>
+<pattern id="pat-sand" width="12" height="12" patternUnits="userSpaceOnUse">
+<circle cx="3" cy="3" r="1" fill="currentColor"/>
+<circle cx="9" cy="9" r="1" fill="currentColor"/>
+</pattern>
+<pattern id="pat-silt" width="20" height="10" patternUnits="userSpaceOnUse">
+<line x1="0" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="10" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3"/>
+</pattern>
+<pattern id="pat-clay" width="10" height="6" patternUnits="userSpaceOnUse">
+<line x1="0" y1="3" x2="10" y2="3" stroke="currentColor" stroke-width="0.8"/>
+</pattern>
+<pattern id="pat-peat" width="20" height="20" patternUnits="userSpaceOnUse">
+<line x1="0" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1"/>
+<line x1="5" y1="0" x2="5" y2="20" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3"/>
+</pattern>
+<pattern id="pat-fill" width="20" height="20" patternUnits="userSpaceOnUse">
+<line x1="0" y1="20" x2="20" y2="0" stroke="currentColor" stroke-width="1" stroke-dasharray="4,4"/>
+</pattern>
+</defs>
+</svg>
 </body>
 </html>
