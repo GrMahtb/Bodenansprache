@@ -696,7 +696,7 @@ function stateGroupHtml(layer, quick) {
         </div>
       </div>
 
-      <div class="choiceBlock">
+            <div class="choiceBlock">
         <div class="choiceLabel">Wasserzustand</div>
         <div class="chips">
           ${WATER_OPTIONS.filter(Boolean).map(v => chipHtml({
@@ -707,9 +707,52 @@ function stateGroupHtml(layer, quick) {
           })).join('')}
         </div>
       </div>
+
+      <div class="choiceBlock">
+        <div class="choiceLabel">Trockenfestigkeit</div>
+        <div class="chips">
+          ${DRYSTRENGTH_OPTIONS.filter(Boolean).map(v => chipHtml({
+            layerId: layer.id, field: 'dryStrength', value: v, active: layer.dryStrength === v
+          })).join('')}
+        </div>
+      </div>
+
+      <div class="choiceBlock">
+        <div class="choiceLabel">Plastizität</div>
+        <div class="chips">
+          ${PLASTICITY_OPTIONS.filter(Boolean).map(v => chipHtml({
+            layerId: layer.id, field: 'plasticity', value: v, active: layer.plasticity === v
+          })).join('')}
+        </div>
+      </div>
+
+      <div class="choiceBlock">
+        <div class="choiceLabel">Kornform</div>
+        <div class="chips">
+          ${GRAINSHAPE_OPTIONS.map(v => chipHtml({
+            layerId: layer.id, field: 'grainShape', value: v, active: layer.grainShape === v
+          })).join('')}
+        </div>
+      </div>
+
+      <div class="choiceBlock">
+        <div class="choiceLabel">Rundungsgrad</div>
+        <div class="chips">
+          ${ROUNDNESS_OPTIONS.map(v => chipHtml({
+            layerId: layer.id, field: 'roundness', value: v, active: layer.roundness === v, soft: true
+          })).join('')}
+        </div>
+      </div>
+
+      <div class="choiceBlock">
+        <div class="choiceLabel">Rauhigkeit</div>
+        <div class="chips">
+          ${ROUGHNESS_OPTIONS.map(v => chipHtml({
+            layerId: layer.id, field: 'roughness', value: v, active: layer.roughness === v
+          })).join('')}
+        </div>
+      </div>
     `}
-  `;
-}
 
 function reportGroupHtml(layer, quick) {
   const full = fullDescription(layer) || 'Noch keine normnahe Beschreibung ausgewählt.';
