@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'bohrkern-v152';
+const CACHE_NAME = 'bohrkern-v153';
 const ASSETS = [
   './',
   './index.html',
