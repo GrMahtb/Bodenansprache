@@ -133,8 +133,8 @@ header {
 
 .tab.is-active {
 background: #000000;
-color: #f4c400;
-border-color: #f4c400;
+color: var(--primary);
+border-color: var(--primary);
 }
 
 /* PANES */
