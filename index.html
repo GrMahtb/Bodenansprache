@@ -28,7 +28,7 @@
   <nav class="tabs">
     <button class="tab is-active" type="button" data-tab="doku">Protokoll</button>
     <button class="tab"           type="button" data-tab="verlauf">Verlauf</button>
-    <button class="tab"           type="button" data-tab="photo">Fotodoku</button>
+    <button class="tab"           type="button" data-tab="bohrprofil">Bohrprofil</button>
     <button class="tab"           type="button" data-tab="checkliste">Checkliste</button>
     <button class="tab"           type="button" data-tab="einstellungen" aria-label="Einstellungen" title="Einstellungen">⚙</button>
   </nav>
@@ -105,8 +105,15 @@
     </section>
   </div>
 
-  <!-- TAB: Fotodoku -->
-  <div class="pane" id="tab-photo" hidden>
+  <!-- TAB: Bohrprofil -->
+  <div class="pane" id="tab-bohrprofil" hidden>
+<section class="section">
+<div class="section-title">Bohrprofil</div>
+<div class="text"><p>Platzhalter – Bohrprofil folgt.</p></div>
+</section>
+</div>
+
+<div class="pane" id="tab-photo-OLD" hidden style="display:none">
     <section class="section">
 
       <div class="form-grid">
@@ -369,11 +376,6 @@
 </section>
 </div>
 
-
-  <!-- Floating Foto Button -->
-  <button class="photo-float-btn" id="btnPhotoFloat" type="button">
-    Foto
-  </button>
 
   <!-- Photo Viewer Modal -->
   <div id="photoViewerModal" class="photo-modal" hidden>
