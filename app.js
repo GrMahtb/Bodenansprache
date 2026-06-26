@@ -272,7 +272,6 @@ function defaultLayer(index = 0) {
     roundness: '',
     roughness: '',
     tool: '',
-    tool: '',
     sampleNo: '',
     coreRun: '',
     recovery: '',
@@ -744,15 +743,17 @@ function stateGroupHtml(layer, quick) {
         </div>
       </div>
 
-      <div class="choiceBlock">
-        <div class="choiceLabel">Rauhigkeit</div>
-        <div class="chips">
-          ${ROUGHNESS_OPTIONS.map(v => chipHtml({
-            layerId: layer.id, field: 'roughness', value: v, active: layer.roughness === v
-          })).join('')}
-        </div>
-      </div>
-    `}
+     <div class="choiceBlock">
+<div class="choiceLabel">Rauhigkeit</div>
+<div class="chips">
+${ROUGHNESS_OPTIONS.map(v => chipHtml({
+layerId: layer.id, field: 'roughness', value: v, active: layer.roughness === v
+})).join('')}
+</div>
+</div>
+`}
+`;
+}
 
 function reportGroupHtml(layer, quick) {
   const full = fullDescription(layer) || 'Noch keine normnahe Beschreibung ausgewählt.';
