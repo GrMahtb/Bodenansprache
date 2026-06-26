@@ -132,8 +132,8 @@ header {
 }
 
 .tab.is-active {
-background: #f4c400;
-color: #000000;
+background: #000000;
+color: #f4c400;
 border-color: #f4c400;
 }
 
