@@ -1,13 +1,13 @@
 'use strict';
 
-console.log('Bohrkernaufnahme v141 loaded');
+console.log('Bohrgutansprache v158 loaded');
 
-const STORAGE_DRAFT = 'bohrkern-draft-v141';
-const STORAGE_HISTORY = 'bohrkern-history-v141';
-const STORAGE_PHOTO_META = 'bohrkern-photo-meta-v141';
+const STORAGE_DRAFT = 'bohrkern-draft-v158';
+const STORAGE_HISTORY = 'bohrkern-history-v158';
+const STORAGE_PHOTO_META = 'bohrkern-photo-meta-v158';
 const HISTORY_MAX = 40;
 
-const PHOTO_DB_NAME = 'bohrkern-photo-db-v141';
+const PHOTO_DB_NAME = 'bohrkern-photo-db-v158';
 const PHOTO_DB_STORE = 'files';
 const PHOTO_MAX_EDGE = 1600;
 const PHOTO_QUALITY = 0.78;
