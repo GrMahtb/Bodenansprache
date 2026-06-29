@@ -1127,3 +1127,42 @@ body.theme-light .subAcc > summary,
 body.theme-light .subAcc__body {
 background: #ffffff !important;
 }
+/* --- AUSWAHLCHIPS UND DIREKTELEMENTE IM HELLMODUS --- */
+
+/* Alle inaktiven Standard-Chips (z. B. Hauptanteile, Zustände, Zusätze) */
+body.theme-light .chip {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #d6dde6 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Alle inaktiven Soft-Chips (z. B. Nebenanteile, optionale Felder) */
+body.theme-light .chip--soft {
+  background: #ffffff !important;
+  color: #374151 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Hover-Effekt für alle inaktiven Elemente im Hellmodus */
+body.theme-light .chip:not(.is-active):hover,
+body.theme-light .chip--soft:not(.is-active):hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Eingabefelder, Auswahllisten und Textbereiche im Hellmodus weiß hinterlegen */
+body.theme-light input,
+body.theme-light select,
+body.theme-light textarea {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #d6dde6 !important;
+}
+
+/* Sicherstellen, dass geöffnete Schichtkarten-Bereiche im Hellmodus clean wirken */
+body.theme-light .layerCard {
+  background: #ffffff !important;
+  border-color: #d6dde6 !important;
+}
