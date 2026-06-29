@@ -58,9 +58,13 @@
             <input class="field__input" type="text" id="meta-project" placeholder="Projektname">
           </label>
           <label class="field">
-            <span class="field__label">Bohrung / Aufschluss</span>
-            <input class="field__input" type="text" id="meta-borehole" placeholder="z.B. B1">
-          </label>
+<span class="field__label">Bohrung / Aufschluss (eine pro Zeile)</span>
+<textarea class="field__textarea" id="meta-borehole" rows="3" placeholder="BK1&#10;BK2&#10;BK3"></textarea>
+</label>
+<label class="field">
+<span class="field__label">Aktive Bohrung für neue Schichten</span>
+<select class="field__select" id="meta-borehole-active"></select>
+</label>
           <label class="field">
             <span class="field__label">Ort / Abschnitt</span>
             <input class="field__input" type="text" id="meta-location" placeholder="Standort">
@@ -88,6 +92,8 @@
       </button>
       <button class="btn btn--ghost" id="btnSave" type="button" style="margin-top:10px">
         Speichern
+      </button>
+      <button class="btn btn--ghost" id="btnReset" type="button">Zurücksetzen
       </button>
     </div>
 
