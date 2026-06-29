@@ -1120,3 +1120,10 @@ color: var(--text);
 .bpDesc { flex: 1 1 auto; padding: 6px 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
 .bpDesc__name { font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; }
 .bpDesc__sub { font-size: .8rem; color: var(--muted); }
+
+body.theme-light .subAcc,
+body.theme-light .subAcc[open],
+body.theme-light .subAcc > summary,
+body.theme-light .subAcc__body {
+background: #ffffff !important;
+}
