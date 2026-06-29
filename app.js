@@ -85,22 +85,29 @@ const GRAINSHAPE_OPTIONS = ['plattig', 'kubisch', 'stängelig'];
 const ROUNDNESS_OPTIONS = ['scharfkantig', 'kantig', 'kantengerundet', 'angerundet', 'gerundet', 'gut gerundet'];
 const ROUGHNESS_OPTIONS = ['rau', 'glatt'];
 const TOOL_OPTIONS = ['', 'RKS', 'Kernbohrung', 'Spülbohrung', 'Bohrstock', 'Bagger', 'Schurf', 'DPH', 'DPSH', 'CPT'];
+function emptyMeta() {
+return { date: new Date().toISOString().slice(0,10), user: '', project: '', borehole: '', location: '', device: '', note: '' };
+}
+function defaultBorehole() {
+return { id: uid(), meta: emptyMeta(), layers: [defaultLayer(0)] };
+}
 const state = {
-  meta: {
-    date: '',
-    user: '',
-    project: '',
-    borehole: '',
-    location: '',
-    device: '',
-    note: ''
-  },
-  ui: {
-
-theme: 'dark'
-},
+boreholes: [],
+activeBoreholeId: '',
+meta: emptyMeta(),
+ui: { theme: 'dark', view: 'list', activeLayerId: '' },
 layers: []
 };
+function activeBorehole() {
+return state.boreholes.find(b => b.id === state.activeBoreholeId) || null;
+}
+function setActiveBorehole(id) {
+const bh = state.boreholes.find(b => b.id === id);
+if (!bh) return;
+state.activeBoreholeId = id;
+state.meta = bh.meta;
+state.layers = bh.layers;
+}
 const photoDraft = {
   endDepth: '',
   selectedBox: '',
@@ -312,9 +319,10 @@ function getOpenIds() {
    Persistenz
 ========================= */
 function saveDraft() {
-  try {
-    localStorage.setItem(STORAGE_DRAFT, JSON.stringify(state));
-  } catch {}
+try {
+const data = { boreholes: state.boreholes, activeBoreholeId: state.activeBoreholeId, ui: state.ui };
+localStorage.setItem(STORAGE_DRAFT, JSON.stringify(data));
+} catch {}
 }
 
 let saveTimer = null;
@@ -324,16 +332,32 @@ function saveDraftDebounced() {
 }
 
 function loadDraft() {
-  try {
-    const raw = localStorage.getItem(STORAGE_DRAFT);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    if (parsed?.meta) state.meta = { ...state.meta, ...parsed.meta };
-    if (parsed?.ui) state.ui = { ...state.ui, ...parsed.ui };
-    if (Array.isArray(parsed?.layers) && parsed.layers.length) {
-      state.layers = parsed.layers.map((l, i) => hydrateLayer(l, i));
-    }
-  } catch {}
+try {
+const raw = localStorage.getItem(STORAGE_DRAFT);
+if (!raw) return;
+const parsed = JSON.parse(raw);
+if (parsed?.ui) state.ui = { ...state.ui, ...parsed.ui };
+
+if (Array.isArray(parsed?.boreholes) && parsed.boreholes.length) {
+state.boreholes = parsed.boreholes.map(b => ({
+id: b.id || uid(),
+meta: { ...emptyMeta(), ...(b.meta || {}) },
+layers: (Array.isArray(b.layers) && b.layers.length ? b.layers : [{}]).map((l, i) => hydrateLayer(l, i))
+}));
+} else if (parsed?.meta || Array.isArray(parsed?.layers)) {
+state.boreholes = [{
+id: uid(),
+meta: { ...emptyMeta(), ...(parsed.meta || {}) },
+layers: (Array.isArray(parsed.layers) && parsed.layers.length ? parsed.layers : [{}]).map((l, i) => hydrateLayer(l, i))
+}];
+}
+
+if (!state.boreholes.length) state.boreholes = [defaultBorehole()];
+if (!state.boreholes.some(b => b.id === parsed?.activeBoreholeId)) state.activeBoreholeId = state.boreholes[0].id;
+else state.activeBoreholeId = parsed.activeBoreholeId;
+setActiveBorehole(state.activeBoreholeId);
+state.ui.view = 'list';
+} catch {}
 }
 
 function readHistory() {
@@ -366,18 +390,26 @@ function saveCurrentToHistory() {
 }
 
 function applyState(snapshot) {
-  if (!snapshot) return;
-  state.meta = { ...state.meta, ...(snapshot.meta || {}) };
-  state.ui = { ...state.ui, ...(snapshot.ui || {}) };
-  state.layers = Array.isArray(snapshot.layers) && snapshot.layers.length
-    ? snapshot.layers.map((l, i) => hydrateLayer(l, i))
-    : [defaultLayer(0)];
-  syncMetaToUi();
-  syncMetaAccordionMeta();
-  renderLayers();
-  renderHistoryList();
-  syncPhotoPanel(true);
-  saveDraftDebounced();
+if (!snapshot) return;
+if (Array.isArray(snapshot.boreholes) && snapshot.boreholes.length) {
+state.boreholes = snapshot.boreholes.map(b => ({
+id: b.id || uid(),
+meta: { ...emptyMeta(), ...(b.meta || {}) },
+layers: (b.layers?.length ? b.layers : [{}]).map((l, i) => hydrateLayer(l, i))
+}));
+} else {
+state.boreholes = [{
+id: uid(),
+meta: { ...emptyMeta(), ...(snapshot.meta || {}) },
+layers: (snapshot.layers?.length ? snapshot.layers : [{}]).map((l, i) => hydrateLayer(l, i))
+}];
+}
+state.activeBoreholeId = state.boreholes[0].id;
+setActiveBorehole(state.activeBoreholeId);
+state.ui.view = 'list';
+renderProtokoll();
+renderHistoryList();
+saveDraftDebounced();
 }
 
 /* =========================
@@ -792,7 +824,18 @@ function reportGroupHtml(layer, quick) {
     `}
   `;
 }
-
+function layerFullHtml(layer, idx) {
+return `
+${subAccHtml({ layer, group: 'grpBase', title: '1. Tiefe & Kerndaten', meta: basisSummary(layer), body: baseGroupHtml(layer, false) })}
+${subAccHtml({ layer, group: 'grpName', title: '2. Bodenbenennung', meta: namingSummary(layer), body: namingGroupHtml(layer, false) })}
+${subAccHtml({ layer, group: 'grpState', title: '3. Zustand & Zusatz', meta: stateSummary(layer), body: stateGroupHtml(layer, false) })}
+${subAccHtml({ layer, group: 'grpReport', title: '4. Beschreibung & Notiz', meta: reportSummary(layer), body: reportGroupHtml(layer, false) })}
+<div class="layerActions">
+<button class="miniBtn" type="button" data-act="dup" data-id="${h(layer.id)}">Duplizieren</button>
+<button class="miniBtn" type="button" data-act="del" data-id="${h(layer.id)}">Löschen</button>
+</div>
+`;
+}
 function layerCardHtml(layer, idx, isOpen = false) {
   const quick = !!state.ui.quickMode;
   const descShort = shortDescription(layer) || 'Beschreibung wählen';
@@ -871,6 +914,69 @@ sel.innerHTML = list.length
 ? list.map(b => `<option value="${h(b)}" ${b === cur ? 'selected' : ''}>${h(b)}</option>`).join('')
 : '<option value="">—</option>';
 }
+/* ===== Aufschluss / Ansichten ===== */
+function setView(view, layerId = '') {
+state.ui.view = view;
+state.ui.activeLayerId = layerId;
+document.body.classList.toggle('view-layer', view === 'layer');
+renderProtokoll();
+saveDraftDebounced();
+}
+
+function renderProtokoll() {
+const list = $('boreholeListView');
+const detail = $('boreholeDetailView');
+const layerV = $('layerFullView');
+if (!list || !detail || !layerV) return;
+
+list.hidden = state.ui.view !== 'list';
+detail.hidden = state.ui.view !== 'borehole';
+layerV.hidden = state.ui.view !== 'layer';
+
+if (state.ui.view === 'list') renderBoreholeList();
+if (state.ui.view === 'borehole') { syncMetaToUi(); syncMetaAccordionMeta(); renderLayers(); }
+if (state.ui.view === 'layer') renderLayerFull();
+}
+
+function renderBoreholeList() {
+const host = $('boreholeList');
+if (!host) return;
+host.innerHTML = state.boreholes.map(b => {
+const name = b.meta.borehole || '(ohne Bezeichnung)';
+const sub = [b.meta.project, b.meta.date].filter(Boolean).join(' · ');
+return `
+<div class="bhItem" data-bh-open="${h(b.id)}">
+<div class="bhItem__main">
+<div class="bhItem__title">${h(name)}</div>
+<div class="bhItem__sub">${h(sub || '—')} · ${b.layers.length} Schicht(en)</div>
+</div>
+<div class="bhItem__btns">
+<button class="miniBtn" type="button" data-bh-copy="${h(b.id)}">Kopieren</button>
+<button class="miniBtn" type="button" data-bh-del="${h(b.id)}">Löschen</button>
+</div>
+</div>
+`;
+}).join('') || `<div class="text"><p>Noch kein Aufschluss angelegt.</p></div>`;
+}
+
+function newBorehole(copyFromId = '') {
+const bh = defaultBorehole();
+const src = copyFromId ? state.boreholes.find(b => b.id === copyFromId) : null;
+if (src) { bh.meta = { ...clone(src.meta), borehole: (src.meta.borehole || '') + ' Kopie' }; }
+state.boreholes.push(bh);
+setActiveBorehole(bh.id);
+setView('borehole');
+}
+
+function renderLayerFull() {
+const host = $('layerFullBody');
+if (!host) return;
+const idx = state.layers.findIndex(l => l.id === state.ui.activeLayerId);
+if (idx < 0) { setView('borehole'); return; }
+const layer = state.layers[idx];
+$('layerFullTitle').textContent = `Schicht ${idx + 1}`;
+host.innerHTML = layerFullHtml(layer, idx);
+}
 function renderLayers(openIds = null) {
   const host = $('layerList');
   if (!host) return;
@@ -885,16 +991,22 @@ if (!groups.has(key)) groups.set(key, []);
 groups.get(key).push({ layer, idx });
 });
 
-host.innerHTML = Array.from(groups.entries()).map(([name, items]) => `
-<div class="boreholeGroup">
-<div class="boreholeGroup__title">${h(name)}</div>
-${items.map(({ layer, idx }) => layerCardHtml(layer, idx, opened.includes(layer.id))).join('')}
+host.innerHTML = state.layers.map((layer, idx) => {
+const range = `${fmtDepth(layer.from) || '—'} – ${fmtDepth(layer.to) || '—'} m`;
+const desc = shortDescription(layer) || 'Beschreibung wählen';
+return `
+<div class="layerRow" data-layer-open="${h(layer.id)}">
+<div class="layerRow__main">
+<div class="layerRow__title">Schicht ${idx + 1}</div>
+<div class="layerRow__sub">${h(range)} · ${h(desc)}</div>
 </div>
-`).join('');
+<span class="layerRow__chev">›</span>
+</div>
+`;
+}).join('');
 
 renderBohrprofil();
 }
-
 function bohrprofilSecondaryVisual(layer) {
 const sec = normalizeSecondary(layer.secondary)[0];
 if (!sec) return null;
@@ -953,8 +1065,8 @@ function refreshLayerComputed(id) {
 const layer = getLayer(id);
 if (!layer) return;
 
-  const card = document.querySelector(`.layerCard[data-id="${id}"]`);
-  if (!card) return;
+  const card = document.querySelector(`.layerCard[data-id="${id}"]`) || document.getElementById('layerFullBody');
+if (!card) return;
 
   const range = `${fmtDepth(layer.from) || '—'} – ${fmtDepth(layer.to) || '—'} m`;
   const s = shortDescription(layer) || 'Beschreibung wählen';
@@ -1937,8 +2049,35 @@ function hookMetaEvents() {
 }
 
 function hookLayerEvents() {
-  const host = $('layerList');
-  if (!host) return;
+$('boreholeList')?.addEventListener('click', (e) => {
+const open = e.target.closest('[data-bh-open]');
+const copy = e.target.closest('[data-bh-copy]');
+const del = e.target.closest('[data-bh-del]');
+if (copy) { newBorehole(copy.dataset.bhCopy); return; }
+if (del) {
+const id = del.dataset.bhDel;
+if (!confirm('Aufschluss wirklich löschen?')) return;
+state.boreholes = state.boreholes.filter(b => b.id !== id);
+if (!state.boreholes.length) state.boreholes = [defaultBorehole()];
+if (state.activeBoreholeId === id) setActiveBorehole(state.boreholes[0].id);
+renderBoreholeList();
+saveDraftDebounced();
+return;
+}
+if (open) { setActiveBorehole(open.dataset.bhOpen); setView('borehole'); }
+});
+
+$('layerList')?.addEventListener('click', (e) => {
+const row = e.target.closest('[data-layer-open]');
+if (row) setView('layer', row.dataset.layerOpen);
+});
+
+const hosts = [$('layerList'), $('layerFullBody')].filter(Boolean);
+hosts.forEach(host => bindLayerHost(host));
+}
+
+function bindLayerHost(host) {
+if (!host) return;
 
   host.addEventListener('toggle', (e) => {
     const det = e.target;
@@ -2336,20 +2475,15 @@ saveDraftDebounced();
    Init
 ========================= */
 window.addEventListener('DOMContentLoaded', () => {
-  state.meta.date = new Date().toISOString().slice(0, 10);
-  state.layers = [defaultLayer(0)];
+ state.boreholes = [defaultBorehole()];
+state.activeBoreholeId = state.boreholes[0].id;
+setActiveBorehole(state.activeBoreholeId);
 
-  loadDraft();
-
-  if (!state.meta.date) state.meta.date = new Date().toISOString().slice(0, 10);
-  if (!state.layers.length) state.layers = [defaultLayer(0)];
+loadDraft();
 
   initTabs();
-  syncMetaToUi();
-  syncMetaAccordionMeta();
-  syncBoreholeDropdown();
   applyTheme(state.ui.theme);
-  renderLayers();
+  renderProtokoll();
   renderHistoryList();
   renderPhotoHistoryLists();
   syncPhotoPanel(true);
@@ -2364,7 +2498,10 @@ $('settings-theme')?.addEventListener('change', () => {
 applyTheme($('settings-theme')?.value || 'dark');
 saveDraftDebounced();
 });
-
+$('btnNewBorehole')?.addEventListener('click', () => newBorehole());
+$('btnBackToList')?.addEventListener('click', () => setView('list'));
+$('btnBackFromLayer')?.addEventListener('click', () => setView('borehole'));
+$('btnCopyBorehole')?.addEventListener('click', () => newBorehole(state.activeBoreholeId));
 $('meta-borehole')?.addEventListener('input', () => {
 syncBoreholeDropdown();
 renderLayers(getOpenIds());
@@ -2384,10 +2521,9 @@ next.from = fmtDepth(lastTo || 0);
 next.to = fmtDepth(Number(lastTo || 0) + 1);
 next.borehole = state.meta.activeBorehole || '';
 state.layers.push(next);
-    renderLayers([next.id]);
-    syncPhotoPanel(true);
-    saveDraftDebounced();
-  });
+saveDraftDebounced();
+setView('layer', next.id);
+});
 
   $('btnSave')?.addEventListener('click', () => {
     collectMetaFromUi();
