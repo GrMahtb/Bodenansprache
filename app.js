@@ -2073,7 +2073,10 @@ if (row) setView('layer', row.dataset.layerOpen);
 const hosts = [$('layerList'), $('layerFullBody')].filter(Boolean);
 hosts.forEach(host => bindLayerHost(host));
 }
-
+function rerenderActiveLayer() {
+if (state.ui.view === 'layer') renderLayerFull();
+else renderLayers(getOpenIds());
+}
 function bindLayerHost(host) {
 if (!host) return;
 
@@ -2100,13 +2103,10 @@ const idx = list.findIndex(s => s.type === type);
 if (idx >= 0) list.splice(idx, 1);
 else list.push({ type, level: 'mittel' });
 layer.secondary = list;
-const openIds = getOpenIds();
-if (!openIds.includes(layer.id)) openIds.push(layer.id);
-renderLayers(openIds);
+rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
-}
 
 const secLevel = e.target.closest('[data-sec-level]');
 if (secLevel) {
@@ -2116,13 +2116,10 @@ const list = normalizeSecondary(layer.secondary);
 const hit = list.find(s => s.type === secLevel.dataset.secType);
 if (hit) hit.level = secLevel.dataset.secLevel;
 layer.secondary = list;
-const openIds = getOpenIds();
-if (!openIds.includes(layer.id)) openIds.push(layer.id);
-renderLayers(openIds);
+rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
-}
 
 const mainSize = e.target.closest('[data-main-size]');
 if (mainSize) {
@@ -2130,13 +2127,10 @@ const layer = getLayer(mainSize.dataset.id);
 if (!layer) return;
 const f = mainSize.dataset.sizeField, v = mainSize.dataset.mainSize;
 layer[f] = layer[f] === v ? '' : v;
-const openIds = getOpenIds();
-if (!openIds.includes(layer.id)) openIds.push(layer.id);
-renderLayers(openIds);
+rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
-}
 
 const secSize = e.target.closest('[data-sec-size]');
 if (secSize) {
@@ -2146,13 +2140,10 @@ const list = normalizeSecondary(layer.secondary);
 const hit = list.find(s => s.type === secSize.dataset.secType);
 if (hit) hit.size = hit.size === secSize.dataset.secSize ? '' : secSize.dataset.secSize;
 layer.secondary = list;
-const openIds = getOpenIds();
-if (!openIds.includes(layer.id)) openIds.push(layer.id);
-renderLayers(openIds);
+rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
-}
 
 const chip = e.target.closest('[data-chip-field]');
 if (chip) {
@@ -2183,12 +2174,10 @@ if (field === 'main2' && !SIZE_MAIN_FAMILIES.includes(getFamilyByMain(layer.main
 layer.main2Size = '';
 }
 
-      const openIds = getOpenIds();
-      if (!openIds.includes(id)) openIds.push(id);
-      renderLayers(openIds);
-      syncPhotoPanel();
-      saveDraftDebounced();
-      return;
+      rerenderActiveLayer();
+syncPhotoPanel();
+saveDraftDebounced();
+return;
     }
 
     const act = e.target.closest('[data-act]');
