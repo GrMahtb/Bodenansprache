@@ -919,6 +919,7 @@ function setView(view, layerId = '') {
 state.ui.view = view;
 state.ui.activeLayerId = layerId;
 document.body.classList.toggle('view-layer', view === 'layer');
+document.body.classList.toggle('view-borehole', view === 'borehole');
 renderProtokoll();
 saveDraftDebounced();
 }
@@ -935,6 +936,7 @@ layerV.hidden = state.ui.view !== 'layer';
 
 if (state.ui.view === 'list') renderBoreholeList();
 if (state.ui.view === 'borehole') { syncMetaToUi(); syncMetaAccordionMeta(); renderLayers(); }
+document.body.classList.toggle('view-borehole', state.ui.view === 'borehole');
 if (state.ui.view === 'layer') renderLayerFull();
 }
 
@@ -942,7 +944,7 @@ function renderBoreholeList() {
 const host = $('boreholeList');
 if (!host) return;
 host.innerHTML = state.boreholes.map(b => {
-const name = b.meta.borehole || '(ohne Bezeichnung)';
+const name = b.meta.borehole || 'Neuer Bodenaufschluss';
 const sub = [b.meta.project, b.meta.date].filter(Boolean).join(' · ');
 return `
 <div class="bhItem" data-bh-open="${h(b.id)}">
