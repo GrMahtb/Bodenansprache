@@ -15,14 +15,14 @@
 <body>
 
   <header>
-    <div class="logo-container">
-     <img id="appLogo" src="logo.svg"
-    </div>
-    <div class="header-text">
-      <h1>Bodenansprache</h1>
-      <p>ÖNORM EN ISO 14688</p>
-  </header>
-    </div>
+<div class="logo-container">
+<img id="appLogo" src="logo.svg" alt="Logo">
+</div>
+<div class="header-text">
+<h1>Bodenansprache</h1>
+<p>ÖNORM EN ISO 14688</p>
+</div>
+</header>
     
 
   <nav class="tabs">
@@ -34,70 +34,67 @@
   </nav>
 
   <!-- TAB: Dokumentation -->
-  <div class="pane is-active" id="tab-doku">
+<div class="pane is-active" id="tab-doku">
 
-    <details class="sectionAcc" id="metaAcc" open>
-      <summary>
-        <div class="sectionAcc__head">
-          <span class="sectionAcc__title">Stammdaten</span>
-          <span class="sectionAcc__meta" id="metaAccMeta">Projekt, Bohrung, Datum</span>
-        </div>
-      </summary>
-      <div class="sectionAcc__body">
-        <div class="form-grid">
-          <label class="field">
-            <span class="field__label">Datum</span>
-            <input class="field__input" type="date" id="meta-date">
-          </label>
-          <label class="field">
-            <span class="field__label">Bearbeiter</span>
-            <input class="field__input" type="text" id="meta-user" placeholder="Name">
-          </label>
-          <label class="field">
-            <span class="field__label">Projekt</span>
-            <input class="field__input" type="text" id="meta-project" placeholder="Projektname">
-          </label>
-          <label class="field">
-<span class="field__label">Bohrung / Aufschluss (eine pro Zeile)</span>
-<textarea class="field__textarea" id="meta-borehole" rows="3" placeholder="BK1&#10;BK2&#10;BK3"></textarea>
-</label>
-<label class="field">
-<span class="field__label">Aktive Bohrung für neue Schichten</span>
-<select class="field__select" id="meta-borehole-active"></select>
-</label>
-          <label class="field">
-            <span class="field__label">Ort / Abschnitt</span>
-            <input class="field__input" type="text" id="meta-location" placeholder="Standort">
-          </label>
-          <label class="field">
-            <span class="field__label">Bohrverfahren / Gerät</span>
-            <input class="field__input" type="text" id="meta-device" placeholder="Bohrgerät">
-          </label>
-          <label class="field field--wide">
-            <span class="field__label">Bemerkung gesamt</span>
-            <textarea class="field__textarea" id="meta-note"
-                      placeholder="Allgemeine Bemerkungen zur Bohrung …"></textarea>
-          </label>
-        </div>
-      </div>
-    </details>
+<!-- ANSICHT 1: Aufschluss-Liste -->
+<div id="boreholeListView">
+<section class="section">
+<div class="section-title">Aufschlüsse / Bohrungen</div>
+<div id="boreholeList"></div>
+<div class="actionRow" style="margin-top:12px">
+<button class="btn btn--primary" id="btnNewBorehole" type="button">+ Neuer Aufschluss</button>
+</div>
+</section>
+</div>
 
+<!-- ANSICHT 2: Aktiver Aufschluss -->
+<div id="boreholeDetailView" hidden>
+<div class="detailHead">
+<button class="backBtn" id="btnBackToList" type="button">‹ Aufschlüsse</button>
+<button class="miniBtn" id="btnCopyBorehole" type="button">Kopieren</button>
+</div>
 
+<details class="sectionAcc" id="metaAcc" open>
+<summary>
+<div class="sectionAcc__head">
+<span class="sectionAcc__title">Stammdaten</span>
+<span class="sectionAcc__meta" id="metaAccMeta">Projekt, Bohrung, Datum</span>
+</div>
+</summary>
+<div class="sectionAcc__body">
+<div class="form-grid">
+<label class="field"><span class="field__label">Datum</span><input class="field__input" type="date" id="meta-date"></label>
+<label class="field"><span class="field__label">Bearbeiter</span><input class="field__input" type="text" id="meta-user" placeholder="Name"></label>
+<label class="field"><span class="field__label">Projekt</span><input class="field__input" type="text" id="meta-project" placeholder="Projektname"></label>
+<label class="field"><span class="field__label">Bohrung / Aufschluss</span><input class="field__input" type="text" id="meta-borehole" placeholder="z.B. BK1"></label>
+<label class="field"><span class="field__label">Ort / Abschnitt</span><input class="field__input" type="text" id="meta-location" placeholder="Standort"></label>
+<label class="field"><span class="field__label">Bohrverfahren / Gerät</span><input class="field__input" type="text" id="meta-device" placeholder="Bohrgerät"></label>
+<label class="field field--wide"><span class="field__label">Bemerkung gesamt</span><textarea class="field__textarea" id="meta-note" placeholder="Allgemeine Bemerkungen zur Bohrung …"></textarea></label>
+</div>
+</div>
+</details>
 
-    <div id="layerList"></div>
+<section class="section">
+<div class="section-title">Schichten</div>
+<div id="layerList"></div>
+<div class="addLayerWrap">
+<button class="btn btn--primary" id="btnAddLayer" type="button">+ Schicht hinzufügen</button>
+<button class="btn btn--ghost" id="btnSave" type="button" style="margin-top:10px">Speichern</button>
+<button class="btn btn--ghost" id="btnReset" type="button">Zurücksetzen</button>
+</div>
+</section>
+</div>
 
-    <div class="addLayerWrap">
-      <button class="btn btn--primary" id="btnAddLayer" type="button">
-        + Schicht hinzufügen
-      </button>
-      <button class="btn btn--ghost" id="btnSave" type="button" style="margin-top:10px">
-        Speichern
-      </button>
-      <button class="btn btn--ghost" id="btnReset" type="button">Zurücksetzen
-      </button>
-    </div>
+<!-- ANSICHT 3: Schicht-Vollbild -->
+<div id="layerFullView" hidden>
+<div class="layerFullHead">
+<button class="backBtn" id="btnBackFromLayer" type="button">‹ Zurück</button>
+<span class="layerFullHead__title" id="layerFullTitle">Schicht</span>
+</div>
+<div id="layerFullBody"></div>
+</div>
 
-  </div>
+</div>
 
   <!-- TAB: Verlauf -->
   <div class="pane" id="tab-verlauf" hidden>
