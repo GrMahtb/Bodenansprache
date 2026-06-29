@@ -1128,3 +1128,14 @@ body.theme-light .subAcc__body {
 background: #ffffff !important;
 }
 
+.boreholeGroup { margin-bottom: 18px; }
+.boreholeGroup__title {
+font-weight: 800;
+font-size: 1rem;
+padding: 8px 12px;
+margin-bottom: 8px;
+border-radius: 10px;
+background: var(--surface-2);
+border: 1px solid var(--border);
+color: var(--text);
+}
