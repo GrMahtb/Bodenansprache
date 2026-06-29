@@ -563,11 +563,7 @@ function baseGroupHtml(layer, quick) {
         <input class="field__input" type="number" step="0.01" data-field="to" data-id="${h(layer.id)}" value="${h(layer.to || '')}" />
       </label>
 
-    ${selectHtml({
-layerId: layer.id,
-field: 'tool',
-
-${selectHtml({
+   ${selectHtml({
 layerId: layer.id,
 field: 'tool',
 options: TOOL_OPTIONS,
@@ -2107,43 +2103,37 @@ rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
+}
 
 const secLevel = e.target.closest('[data-sec-level]');
 if (secLevel) {
-const layer = getLayer(secLevel.dataset.id);
-if (!layer) return;
-const list = normalizeSecondary(layer.secondary);
-const hit = list.find(s => s.type === secLevel.dataset.secType);
-if (hit) hit.level = secLevel.dataset.secLevel;
+...
 layer.secondary = list;
 rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
+}
 
 const mainSize = e.target.closest('[data-main-size]');
 if (mainSize) {
-const layer = getLayer(mainSize.dataset.id);
-if (!layer) return;
-const f = mainSize.dataset.sizeField, v = mainSize.dataset.mainSize;
+...
 layer[f] = layer[f] === v ? '' : v;
 rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
+}
 
 const secSize = e.target.closest('[data-sec-size]');
 if (secSize) {
-const layer = getLayer(secSize.dataset.id);
-if (!layer) return;
-const list = normalizeSecondary(layer.secondary);
-const hit = list.find(s => s.type === secSize.dataset.secType);
-if (hit) hit.size = hit.size === secSize.dataset.secSize ? '' : secSize.dataset.secSize;
+...
 layer.secondary = list;
 rerenderActiveLayer();
 syncPhotoPanel();
 saveDraftDebounced();
 return;
+}
 
 const chip = e.target.closest('[data-chip-field]');
 if (chip) {
