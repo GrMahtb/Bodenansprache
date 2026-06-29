@@ -563,13 +563,9 @@ function baseGroupHtml(layer, quick) {
         <input class="field__input" type="number" step="0.01" data-field="to" data-id="${h(layer.id)}" value="${h(layer.to || '')}" />
       </label>
 
-     ${selectHtml({
+    ${selectHtml({
 layerId: layer.id,
-field: 'borehole',
-options: ['', ...getBoreholeList()],
-value: layer.borehole || '',
-label: 'Bohrung / Aufschluss'
-})}
+field: 'tool',
 
 ${selectHtml({
 layerId: layer.id,
@@ -590,9 +586,9 @@ label: 'Werkzeug / Verfahren'
         </label>
 
         <label class="field">
-          <span class="field__label">Kerngewinnung [%]</span>
-          <input class="field__input" type="number" step="1" min="0" max="100" data-field="recovery" data-id="${h(layer.id)}" value="${h(layer.recovery || '')}" />
-        </label>
+        <span class="field__label">Kerngewinnung [%] <span class="rangeVal" id="recVal-${h(layer.id)}">${h(layer.recovery || 0)}</span></span>
+        <input class="field__input" type="range" min="0" max="100" step="5" data-field="recovery" data-id="${h(layer.id)}" value="${h(layer.recovery || 0)}" oninput="document.getElementById('recVal-${h(layer.id)}').textContent=this.value" />
+    </label>
       `}
     </div>
   `;
