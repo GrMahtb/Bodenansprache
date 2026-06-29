@@ -1174,3 +1174,4 @@ position:sticky; top:0; background:var(--bg);
 padding:10px 0; z-index:2;
 display:flex; align-items:center; gap:12px;
 }
+.rangeVal { font-weight:700; color:var(--text); margin-left:6px; }
