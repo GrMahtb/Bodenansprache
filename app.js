@@ -208,15 +208,19 @@ return adj.length ? `${adj.join(', ')} ${base}` : base;
 }
 
 function fullDescription(layer) {
-  const parts = [];
-  const s = shortDescription(layer);
-  if (s) parts.push(s);
-  if (layer.state) parts.push(layer.state);
-  if (layer.colors?.length) parts.push(layer.colors.join(', '));
-  if (layer.organic) parts.push(layer.organic);
-  if (layer.calc && layer.calc !== 'nicht kalkhaltig') parts.push(layer.calc);
-  if (layer.water) parts.push(layer.water);
-  return parts.join(' · ');
+const parts = [];
+const s = shortDescription(layer);
+if (s) parts.push(s);
+if (layer.state) parts.push(layer.state);
+if (layer.colors?.length) parts.push(layer.colors.join(', '));
+if (layer.organic) parts.push(layer.organic);
+if (layer.calc) parts.push(layer.calc);
+if (layer.water) parts.push(layer.water);
+if (layer.dryStrength) parts.push(`Trockenfestigkeit: ${layer.dryStrength}`);
+if (layer.plasticity) parts.push(`Plastizität: ${layer.plasticity}`);
+const form = [layer.grainShape, layer.roundness, layer.roughness].filter(Boolean).join(', ');
+if (form) parts.push(`Kornform: ${form}`);
+return parts.join(' · ');
 }
 
 function defaultLayer(index = 0) {
