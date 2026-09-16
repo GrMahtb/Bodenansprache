@@ -1171,7 +1171,7 @@ function openHtmlReport(snapshot = state) {
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Bohrkernaufnahme Bericht</title>
+<title>Bodenansprache</title>
 <style>
 body{font-family:Arial,sans-serif;background:#fff;color:#111;margin:0;padding:20px}
 .head{display:flex;align-items:center;gap:16px;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:18px}
@@ -1203,13 +1203,14 @@ th{background:#f3f3f3}
   </div>
 
   <div class="meta">
-    <b>Projekt:</b> ${h(snapshot.meta?.project || '—')}<br>
-    <b>Aufschluss / Bohrung:</b> ${h(snapshot.meta?.borehole || '—')}<br>
-    <b>Datum:</b> ${h(snapshot.meta?.date || '—')}<br>
-    <b>Bearbeiter:</b> ${h(snapshot.meta?.user || '—')}<br>
-    <b>Ort / Abschnitt:</b> ${h(snapshot.meta?.location || '—')}<br>
-    <b>Bohrgerät / Verfahren:</b> ${h(snapshot.meta?.device || '—')}<br>
-    <b>Gesamtbemerkung:</b> ${h(snapshot.meta?.note || '—')}
+    <b>Bezeichnung:</b> ${h(snapshot.meta?.bezeichnung || '—')}<br>
+<b>Projekt:</b> ${h(snapshot.meta?.project || '—')}<br>
+<b>Aufschluss / Bohrung:</b> ${h(snapshot.meta?.borehole || '—')}<br>
+<b>Datum:</b> ${h(snapshot.meta?.date || '—')}<br>
+<b>Bearbeiter:</b> ${h(snapshot.meta?.user || '—')}<br>
+<b>Ort / Abschnitt:</b> ${h(snapshot.meta?.location || '—')}<br>
+<b>Bohrgerät / Verfahren:</b> ${h(snapshot.meta?.device || '—')}<br>
+<b>Gesamtbemerkung:</b> ${h(snapshot.meta?.note || '—')}
   </div>
 
   <table>
